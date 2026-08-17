@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OincaliaCorp | Simulador Económico y Empresarial</title>
-    <!-- Chart.js para las gráficas financieras -->
+    <title>OincaliaCorp | Sistema Bancario y de Inversión</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -48,7 +47,7 @@
             margin-top: 5px;
         }
 
-        /* Panel Principal de Estado Global */
+        /* Barra de Cuentas (Banco vs Inversión) */
         .dashboard-bar {
             display: flex;
             gap: 15px;
@@ -64,7 +63,7 @@
             padding: 15px 20px;
             border-radius: 10px;
             flex: 1;
-            min-width: 200px;
+            min-width: 250px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         }
 
@@ -126,12 +125,11 @@
             transition: background 0.2s;
         }
 
-        .btn:hover {
-            background-color: var(--accent-hover);
-        }
-
+        .btn:hover { background-color: var(--accent-hover); }
         .btn-success { background-color: var(--success); }
         .btn-success:hover { background-color: #059669; }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #dc2626; }
 
         .control-row {
             display: flex;
@@ -147,6 +145,22 @@
             display: block;
             font-size: 0.8rem;
             color: var(--text-muted);
+        }
+
+        input[type="number"] {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px;
+            border-radius: 6px;
+            width: 90px;
+            font-weight: bold;
+        }
+
+        .transfer-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
         .chart-box {
@@ -166,39 +180,74 @@
 <body>
 
     <header>
-        <h1>OincaliaCorp Simulator</h1>
-        <p class="subtitle">Gestiona tu empresa, cotiza en el Banco Central y domina la moneda oficial (Ᶎ)</p>
+        <h1>OincaliaCorp & Banco Central</h1>
+        <p class="subtitle">Sistema integrado de cuentas: Gestiona tu liquidez bancaria y tu capital de inversión (Ᶎ)</p>
     </header>
 
-    <!-- Barra de Estado Financiero -->
+    <!-- Barra de Cuentas Principales -->
     <div class="dashboard-bar">
         <div class="stat-card">
-            <h3>Capital Actual</h3>
-            <div class="value" id="capitalDisplay">1,000.00 Ᶎ</div>
+            <h3>🏦 Cuenta Bancaria (Principal)</h3>
+            <div class="value" id="bankDisplay" style="color: #38bdf8;">100.00 Ᶎ</div>
         </div>
         <div class="stat-card">
-            <h3>Ingresos / Segundo</h3>
+            <h3>📈 Cuenta de Inversión (Bróker)</h3>
+            <div class="value" id="investmentDisplay">50.00 Ᶎ</div>
+        </div>
+        <div class="stat-card">
+            <h3>⚡ Ingresos Pasivos</h3>
             <div class="value" id="incomeDisplay" style="color: var(--accent);">0.00 Ᶎ/s</div>
-        </div>
-        <div class="stat-card">
-            <h3>Banco Central (Plazo Fijo)</h3>
-            <div class="value" id="bankDisplay" style="color: #38bdf8;">0.00 Ᶎ</div>
         </div>
     </div>
 
     <!-- Paneles de Control -->
     <div class="grid-container">
         
-        <!-- Panel de Empresa -->
+        <!-- Panel de Transferencias (Banco <-> Inversión) -->
         <div class="panel">
-            <h2>🏭 Gestión de Empresa</h2>
+            <h2>🔄 Transferencia de Fondos</h2>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                Mueve tus oincalias entre el banco y tu cuenta de inversión para financiar tus empresas.
+            </div>
+
+            <div class="control-row">
+                <div>
+                    <strong>Banco ➔ Inversión</strong>
+                    <span>Meter dinero al bróker</span>
+                </div>
+                <div class="transfer-group">
+                    <input type="number" id="toInvestmentAmount" min="1" value="10">
+                    <button class="btn btn-success" id="depositBtn">Ingresar</button>
+                </div>
+            </div>
+
+            <div class="control-row">
+                <div>
+                    <strong>Inversión ➔ Banco</strong>
+                    <span>Retirar beneficios al banco</span>
+                </div>
+                <div class="transfer-group">
+                    <input type="number" id="toBankAmount" min="1" value="10">
+                    <button class="btn btn-danger" id="withdrawBtn">Retirar</button>
+                </div>
+            </div>
+
+            <button class="btn" id="workBtn" style="margin-top: auto;">Trabajar y cobrar al Banco (+20 Ᶎ)</button>
+        </div>
+
+        <!-- Panel de Empresa / Inversión -->
+        <div class="panel">
+            <h2>🏭 Gestión de Activos</h2>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                Las compras se realizan utilizando exclusivamente el saldo de la <strong>Cuenta de Inversión</strong>.
+            </div>
             
             <div class="control-row">
                 <div>
                     <strong>Línea de Producción</strong>
-                    <span>Genera +1.0 Ᶎ/s por unidad</span>
+                    <span>Genera +1.5 Ᶎ/s a Inversión</span>
                 </div>
-                <button class="btn" id="buyFactoryBtn">Comprar (Coste: <span id="factoryCost">50</span> Ᶎ)</button>
+                <button class="btn" id="buyFactoryBtn">Comprar (<span id="factoryCost">30</span> Ᶎ)</button>
             </div>
 
             <div class="control-row">
@@ -206,38 +255,11 @@
                     <strong>Automatización I+D</strong>
                     <span>Multiplica la eficiencia x2</span>
                 </div>
-                <button class="btn btn-success" id="buyTechBtn">Mejorar (Coste: <span id="techCost">200</span> Ᶎ)</button>
-            </div>
-            
-            <button class="btn" id="workBtn" style="margin-top: auto;">Trabajar duro (+10 Ᶎ manuales)</button>
-        </div>
-
-        <!-- Panel del Banco Central -->
-        <div class="panel">
-            <h2>🏦 Banco Central de Oincalia</h2>
-            
-            <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-                El Banco Central ofrece un interés compuesto del **5% anual** simulado por ciclos de mercado para proteger tus ahorros de la inflación.
-            </div>
-
-            <div class="control-row">
-                <div>
-                    <strong>Depositar en Banco</strong>
-                    <span>Rentabilidad fija</span>
-                </div>
-                <button class="btn" id="depositBtn">Meter 500 Ᶎ</button>
-            </div>
-
-            <div class="control-row">
-                <div>
-                    <strong>Retirar del Banco</strong>
-                    <span>Recuperar capital + intereses</span>
-                </div>
-                <button class="btn btn-danger" id="withdrawBtn" style="background-color: var(--danger);">Retirar Todo</button>
+                <button class="btn btn-success" id="buyTechBtn">Mejorar (<span id="techCost">100</span> Ᶎ)</button>
             </div>
         </div>
 
-        <!-- Gráfica de Crecimiento Financiero -->
+        <!-- Gráfica de Crecimiento de Inversión -->
         <div class="chart-box">
             <canvas id="financeChart"></canvas>
         </div>
@@ -245,28 +267,32 @@
     </div>
 
     <script>
-        // Estado del juego / simulación económica
+        // Estado financiero global
         let state = {
-            capital: 1000,
+            bankBalance: 100.00,       // Dinero en el banco
+            investmentBalance: 50.00,  // Dinero en la cuenta de inversión
             factories: 0,
-            factoryCost: 50,
+            factoryCost: 30,
             techLevel: 1,
-            techCost: 200,
-            bankBalance: 0,
+            techCost: 100,
             incomePerSecond: 0
         };
 
         // Elementos de la UI
-        const capitalDisplay = document.getElementById('capitalDisplay');
-        const incomeDisplay = document.getElementById('incomeDisplay');
         const bankDisplay = document.getElementById('bankDisplay');
+        const investmentDisplay = document.getElementById('investmentDisplay');
+        const incomeDisplay = document.getElementById('incomeDisplay');
+        
+        const toInvestmentAmount = document.getElementById('toInvestmentAmount');
+        const depositBtn = document.getElementById('depositBtn');
+        const toBankAmount = document.getElementById('toBankAmount');
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        
+        const workBtn = document.getElementById('workBtn');
         const buyFactoryBtn = document.getElementById('buyFactoryBtn');
         const factoryCostSpan = document.getElementById('factoryCost');
         const buyTechBtn = document.getElementById('buyTechBtn');
         const techCostSpan = document.getElementById('techCost');
-        const workBtn = document.getElementById('workBtn');
-        const depositBtn = document.getElementById('depositBtn');
-        const withdrawBtn = document.getElementById('withdrawBtn');
 
         // Configuración de Gráfica con Chart.js
         const ctx = document.getElementById('financeChart').getContext('2d');
@@ -275,10 +301,10 @@
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Evolución del Capital (Ᶎ)',
+                    label: 'Capital en Cuenta de Inversión (Ᶎ)',
                     data: [],
-                    borderColor: '#6366f1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     borderWidth: 2,
                     fill: true,
                     tension: 0.2
@@ -297,87 +323,88 @@
 
         let timeSeconds = 0;
 
-        // Actualizar cálculos de ingresos
         function updateIncome() {
             state.incomePerSecond = state.factories * 1.5 * state.techLevel;
             incomeDisplay.textContent = state.incomePerSecond.toFixed(1) + " Ᶎ/s";
         }
 
-        // Acciones del usuario
-        workBtn.addEventListener('click', () => {
-            state.capital += 10 * state.techLevel;
-            updateUI();
-        });
-
-        buyFactoryBtn.addEventListener('click', () => {
-            if (state.capital >= state.factoryCost) {
-                state.capital -= state.factoryCost;
-                state.factories += 1;
-                state.factoryCost = Math.round(state.factoryCost * 1.25); // Progresión geométrica matemática
-                factoryCostSpan.textContent = state.factoryCost;
-                updateIncome();
-                updateUI();
-            } else {
-                alert("No tienes suficientes oincalias.");
-            }
-        });
-
-        buyTechBtn.addEventListener('click', () => {
-            if (state.capital >= state.techCost) {
-                state.capital -= state.techCost;
-                state.techLevel += 1;
-                state.techCost = Math.round(state.techCost * 1.8);
-                techCostSpan.textContent = state.techCost;
-                updateIncome();
-                updateUI();
-            } else {
-                alert("Fondos insuficientes para investigación tecnológica.");
-            }
-        });
-
+        // Lógica de Transferencias Bancarias
         depositBtn.addEventListener('click', () => {
-            if (state.capital >= 500) {
-                state.capital -= 500;
-                state.bankBalance += 500;
+            let amount = parseFloat(toInvestmentAmount.value);
+            if (isNaN(amount) || amount <= 0) return alert("Introduce una cantidad válida.");
+
+            if (state.bankBalance >= amount) {
+                state.bankBalance -= amount;
+                state.investmentBalance += amount;
                 updateUI();
             } else {
-                alert("Necesitas al menos 500 Ᶎ para depositar.");
+                alert("No tienes suficiente dinero en el Banco Principal.");
             }
         });
 
         withdrawBtn.addEventListener('click', () => {
-            if (state.bankBalance > 0) {
-                state.capital += state.bankBalance;
-                state.bankBalance = 0;
+            let amount = parseFloat(toBankAmount.value);
+            if (isNaN(amount) || amount <= 0) return alert("Introduce una cantidad válida.");
+
+            if (state.investmentBalance >= amount) {
+                state.investmentBalance -= amount;
+                state.bankBalance += amount;
                 updateUI();
             } else {
-                alert("No tienes capital en el Banco Central.");
+                alert("No tienes suficiente saldo en la Cuenta de Inversión.");
+            }
+        });
+
+        // Ganar dinero trabajando (va directo al banco como nómina)
+        workBtn.addEventListener('click', () => {
+            state.bankBalance += 20;
+            updateUI();
+        });
+
+        // Comprar fábricas usando la cuenta de inversión
+        buyFactoryBtn.addEventListener('click', () => {
+            if (state.investmentBalance >= state.factoryCost) {
+                state.investmentBalance -= state.factoryCost;
+                state.factories += 1;
+                state.factoryCost = Math.round(state.factoryCost * 1.25);
+                factoryCostSpan.textContent = state.factoryCost;
+                updateIncome();
+                updateUI();
+            } else {
+                alert("Fondos insuficientes en la Cuenta de Inversión. ¡Transfiere dinero desde el banco!");
+            }
+        });
+
+        buyTechBtn.addEventListener('click', () => {
+            if (state.investmentBalance >= state.techCost) {
+                state.investmentBalance -= state.techCost;
+                state.techLevel += 1;
+                state.techCost = Math.round(state.techCost * 1.7);
+                techCostSpan.textContent = state.techCost;
+                updateIncome();
+                updateUI();
+            } else {
+                alert("Fondos insuficientes en la Cuenta de Inversión.");
             }
         });
 
         function updateUI() {
-            capitalDisplay.textContent = state.capital.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " Ᶎ";
             bankDisplay.textContent = state.bankBalance.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " Ᶎ";
+            investmentDisplay.textContent = state.investmentBalance.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " Ᶎ";
         }
 
-        // Bucle Principal del Juego / Simulación (ejecuta cada segundo)
+        // Bucle Principal del Simulador (Cada segundo)
         setInterval(() => {
-            // Sumar ingresos de la empresa
-            state.capital += state.incomePerSecond;
-
-            // Simular interés del Banco Central (Interés compuesto aplicado al ahorro)
-            if (state.bankBalance > 0) {
-                state.bankBalance *= 1.002; // Pequeño incremento por segundo simulando tasa bancaria
-            }
+            // Los beneficios de producción van directamente a la cuenta de inversión
+            state.investmentBalance += state.incomePerSecond;
 
             updateUI();
 
-            // Actualizar datos de la gráfica cada segundo
+            // Actualizar gráfica
             timeSeconds += 1;
             financeChart.data.labels.push(timeSeconds + 's');
-            financeChart.data.datasets[0].data.push(state.capital + state.bankBalance);
+            financeChart.data.datasets[0].data.push(state.investmentBalance);
 
-            // Mantener la gráfica limpia mostrando solo los últimos 30 puntos
             if (financeChart.data.labels.length > 30) {
                 financeChart.data.labels.shift();
                 financeChart.data.datasets[0].data.shift();
