@@ -25,7 +25,7 @@
             padding: 0;
         }
 
-        /* ================= PANTALLA DE ACCESO / REGISTRO PERSISTENTE ================= */
+        /* ================= PANTALLA DE ACCESO / REGISTRO CON CONTRASEÑA ================= */
         #login-container {
             display: flex;
             justify-content: center;
@@ -53,13 +53,21 @@
         .auth-box input {
             width: 100%;
             padding: 12px;
-            margin: 12px 0;
+            margin: 8px 0 16px 0;
             background: #202124;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             color: var(--text-main);
             box-sizing: border-box;
             font-size: 1rem;
+        }
+
+        .auth-box label {
+            display: block;
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
         }
 
         .auth-btn {
@@ -81,7 +89,7 @@
             color: var(--google-blue);
             cursor: pointer;
             font-size: 0.85rem;
-            margin-top: 15px;
+            margin-top: 20px;
             display: inline-block;
         }
 
@@ -235,7 +243,12 @@
             <h2 id="authTitle">Iniciar Sesión</h2>
             <p style="color: var(--text-muted); font-size: 0.85rem;" id="authSubtitle">Portal Google Finance - Oincalia</p>
             
-            <input type="text" id="usernameInput" placeholder="Nombre de usuario" autocomplete="off">
+            <label for="usernameInput">Usuario</label>
+            <input type="text" id="usernameInput" placeholder="Introduce tu usuario" autocomplete="off">
+            
+            <label for="passwordInput">Contraseña</label>
+            <input type="password" id="passwordInput" placeholder="Introduce tu contraseña">
+            
             <button class="auth-btn" id="authBtn" onclick="handleAuth()">Entrar</button>
             
             <span class="toggle-link" onclick="toggleAuthMode()" id="toggleAuthText">¿No tienes cuenta? Crear una</span>
@@ -292,7 +305,7 @@
 
     <script>
         // Cargar cuentas guardadas previamente en el navegador (localStorage)
-        let users = JSON.parse(localStorage.getItem('oincalia_persistent_users_100')) || {};
+        let users = JSON.parse(localStorage.getItem('oincalia_secure_users_v1')) || {};
         let currentUser = null;
         let isRegistering = false;
 
@@ -303,26 +316,36 @@
             document.getElementById('authSubtitle').innerText = isRegistering ? "Regístrate para guardar tu cuenta y obtener 100 Ᶎ" : "Portal Google Finance - Oincalia";
             document.getElementById('authBtn').innerText = isRegistering ? "Registrarse" : "Entrar";
             document.getElementById('toggleAuthText').innerText = isRegistering ? "¿Ya tienes cuenta? Iniciar Sesión" : "¿No tienes cuenta? Crear una";
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
         }
 
-        // Manejar el proceso de autenticación o registro
+        // Manejar el proceso de autenticación o registro con usuario y contraseña
         function handleAuth() {
             const username = document.getElementById('usernameInput').value.trim();
-            if (!username) return alert("Por favor, introduce un nombre de usuario.");
+            const password = document.getElementById('passwordInput').value.trim();
+
+            if (!username || !password) {
+                return alert("Por favor, introduce un usuario y una contraseña.");
+            }
 
             if (isRegistering) {
                 if (users[username]) {
-                    return alert("Este usuario ya existe. Por favor, inicia sesión.");
+                    return alert("Este usuario ya existe. Por favor, elige otro o inicia sesión.");
                 }
-                // Crear y guardar la cuenta de forma permanente con exactamente 100 oincalias iniciales
+                // Crear y guardar la cuenta con usuario, contraseña y 100 oincalias iniciales
                 users[username] = {
+                    password: password,
                     investmentBalance: 100.00
                 };
-                localStorage.setItem('oincalia_persistent_users_100', JSON.stringify(users));
+                localStorage.setItem('oincalia_secure_users_v1', JSON.stringify(users));
                 alert("¡Cuenta creada y guardada con éxito! Se han asignado 100 Ᶎ iniciales a tu cuenta.");
             } else {
                 if (!users[username]) {
                     return alert("El usuario no existe. Regístrate primero usando la opción de abajo.");
+                }
+                if (users[username].password !== password) {
+                    return alert("Contraseña incorrecta. Inténtalo de nuevo.");
                 }
             }
 
@@ -340,12 +363,13 @@
             document.getElementById('app-container').style.display = 'none';
             document.getElementById('login-container').style.display = 'flex';
             document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
         }
 
         // Guardar cambios en la cuenta actual de forma persistente
         function saveUserData() {
             if (!currentUser) return;
-            localStorage.setItem('oincalia_persistent_users_100', JSON.stringify(users));
+            localStorage.setItem('oincalia_secure_users_v1', JSON.stringify(users));
         }
 
         function simulateInvestment() {
