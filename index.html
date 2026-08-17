@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SciMath Lab | Física, Química y Matemáticas</title>
-    <!-- Importamos Chart.js para los gráficos matemáticos de las ciencias -->
+    <title>OincaliaCorp | Simulador Económico y Empresarial</title>
+    <!-- Chart.js para las gráficas financieras -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --accent: #10b981;
-            --math-color: #38bdf8;
-            --chem-color: #f43f5e;
-            --phys-color: #fbbf24;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
+            --bg: #0b0f19;
+            --card: #111827;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border: #374151;
         }
 
         body {
@@ -32,236 +33,359 @@
 
         header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         h1 {
             margin: 0;
-            font-size: 2rem;
-            background: linear-gradient(to right, var(--math-color), var(--chem-color), var(--phys-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2.2rem;
+            color: var(--accent);
         }
 
-        p.subtitle {
+        .subtitle {
             color: var(--text-muted);
-            margin: 8px 0 0 0;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            margin-top: 5px;
         }
 
-        .main-grid {
+        /* Panel Principal de Estado Global */
+        .dashboard-bar {
+            display: flex;
+            gap: 15px;
+            max-width: 900px;
+            width: 100%;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 15px 20px;
+            border-radius: 10px;
+            flex: 1;
+            min-width: 200px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--success);
+        }
+
+        /* Contenedor de Secciones */
+        .grid-container {
             display: grid;
-            grid-template-columns: 320px 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
-            max-width: 1100px;
+            max-width: 900px;
             width: 100%;
         }
 
-        @media (max-width: 850px) {
-            .main-grid {
+        @media (max-width: 768px) {
+            .grid-container {
                 grid-template-columns: 1fr;
             }
         }
 
-        .panel, .graph-card {
+        .panel {
             background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        .panel h3 {
-            margin-top: 0;
-            color: var(--accent);
+        .panel h2 {
+            margin: 0 0 10px 0;
             font-size: 1.2rem;
-            border-bottom: 2px solid #334155;
+            border-bottom: 1px solid var(--border);
             padding-bottom: 8px;
-        }
-
-        .control-group {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .val {
             color: var(--text);
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
             font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--accent);
+        .btn:hover {
+            background-color: var(--accent-hover);
         }
 
-        .badges {
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #059669; }
+
+        .control-row {
             display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
-        .badge-math { background: rgba(56, 189, 248, 0.2); color: var(--math-color); }
-        .badge-chem { background: rgba(244, 63, 94, 0.2); color: var(--chem-color); }
-        .badge-phys { background: rgba(251, 191, 36, 0.2); color: var(--phys-color); }
-
-        .graph-card {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            position: relative;
-            height: 420px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        canvas {
-            width: 100% !important;
-            height: 100% !important;
+        .control-row div span {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
         }
 
-        .info-box {
-            margin-top: 15px;
-            background: #0f172a;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            border: 1px solid #334155;
-            line-height: 1.4;
+        .chart-box {
+            grid-column: span 2;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            height: 250px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-box { grid-column: span 1; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>SciMath Lab Interactivo</h1>
-        <p class="subtitle">Simulador de Decaimiento Radiactivo y Cinética de Elementos</p>
+        <h1>OincaliaCorp Simulator</h1>
+        <p class="subtitle">Gestiona tu empresa, cotiza en el Banco Central y domina la moneda oficial (Ᶎ)</p>
     </header>
 
-    <div class="main-grid">
-        <!-- Panel de Control y Teoría -->
-        <div class="panel">
-            <h3>Parámetros del Sistema</h3>
-            
-            <div class="badges">
-                <span class="badge badge-math">Matemáticas (Expponenciales)</span>
-                <span class="badge badge-chem">Química (Isótopos)</span>
-                <span class="badge badge-phys">Física (Semivida)</span>
-            </div>
-
-            <div class="control-group">
-                <label>Átomos Iniciales ($N_0$): <span id="n0Val" class="val">1000</span></label>
-                <input type="range" id="n0Range" min="200" max="5000" step="100" value="1000">
-            </div>
-
-            <div class="control-group">
-                <label>Constante de Desintegración ($\lambda$): <span id="lambdaVal" class="val">0.05</span></label>
-                <input type="range" id="lambdaRange" min="0.01" max="0.2" step="0.01" value="0.05">
-            </div>
-
-            <div class="info-box">
-                <strong>¿Qué une este experimento?</strong>
-                <ul style="margin: 5px 0 0 -15px; padding-left: 15px;">
-                    <li><strong>Mates:</strong> Modela una función exponencial decreciente ($N(t) = N_0 \cdot e^{-\lambda t}$).</li>
-                    <li><strong>Química:</strong> Representa cómo un isótopo radiactivo se transforma en otro elemento con el tiempo.</li>
-                    <li><strong>Física:</strong> Calcula la vida media o semivida de las partículas subatómicas.</li>
-                </ul>
-            </div>
+    <!-- Barra de Estado Financiero -->
+    <div class="dashboard-bar">
+        <div class="stat-card">
+            <h3>Capital Actual</h3>
+            <div class="value" id="capitalDisplay">1,000.00 Ᶎ</div>
         </div>
-
-        <!-- Visualización Gráfica -->
-        <div class="graph-card">
-            <canvas id="decayChart"></canvas>
+        <div class="stat-card">
+            <h3>Ingresos / Segundo</h3>
+            <div class="value" id="incomeDisplay" style="color: var(--accent);">0.00 Ᶎ/s</div>
+        </div>
+        <div class="stat-card">
+            <h3>Banco Central (Plazo Fijo)</h3>
+            <div class="value" id="bankDisplay" style="color: #38bdf8;">0.00 Ᶎ</div>
         </div>
     </div>
 
+    <!-- Paneles de Control -->
+    <div class="grid-container">
+        
+        <!-- Panel de Empresa -->
+        <div class="panel">
+            <h2>🏭 Gestión de Empresa</h2>
+            
+            <div class="control-row">
+                <div>
+                    <strong>Línea de Producción</strong>
+                    <span>Genera +1.0 Ᶎ/s por unidad</span>
+                </div>
+                <button class="btn" id="buyFactoryBtn">Comprar (Coste: <span id="factoryCost">50</span> Ᶎ)</button>
+            </div>
+
+            <div class="control-row">
+                <div>
+                    <strong>Automatización I+D</strong>
+                    <span>Multiplica la eficiencia x2</span>
+                </div>
+                <button class="btn btn-success" id="buyTechBtn">Mejorar (Coste: <span id="techCost">200</span> Ᶎ)</button>
+            </div>
+            
+            <button class="btn" id="workBtn" style="margin-top: auto;">Trabajar duro (+10 Ᶎ manuales)</button>
+        </div>
+
+        <!-- Panel del Banco Central -->
+        <div class="panel">
+            <h2>🏦 Banco Central de Oincalia</h2>
+            
+            <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+                El Banco Central ofrece un interés compuesto del **5% anual** simulado por ciclos de mercado para proteger tus ahorros de la inflación.
+            </div>
+
+            <div class="control-row">
+                <div>
+                    <strong>Depositar en Banco</strong>
+                    <span>Rentabilidad fija</span>
+                </div>
+                <button class="btn" id="depositBtn">Meter 500 Ᶎ</button>
+            </div>
+
+            <div class="control-row">
+                <div>
+                    <strong>Retirar del Banco</strong>
+                    <span>Recuperar capital + intereses</span>
+                </div>
+                <button class="btn btn-danger" id="withdrawBtn" style="background-color: var(--danger);">Retirar Todo</button>
+            </div>
+        </div>
+
+        <!-- Gráfica de Crecimiento Financiero -->
+        <div class="chart-box">
+            <canvas id="financeChart"></canvas>
+        </div>
+
+    </div>
+
     <script>
-        const n0Range = document.getElementById('n0Range');
-        const lambdaRange = document.getElementById('lambdaRange');
-        const n0Val = document.getElementById('n0Val');
-        const lambdaVal = document.getElementById('lambdaVal');
+        // Estado del juego / simulación económica
+        let state = {
+            capital: 1000,
+            factories: 0,
+            factoryCost: 50,
+            techLevel: 1,
+            techCost: 200,
+            bankBalance: 0,
+            incomePerSecond: 0
+        };
 
-        let ctx = document.getElementById('decayChart').getContext('2d');
-        let decayChart;
+        // Elementos de la UI
+        const capitalDisplay = document.getElementById('capitalDisplay');
+        const incomeDisplay = document.getElementById('incomeDisplay');
+        const bankDisplay = document.getElementById('bankDisplay');
+        const buyFactoryBtn = document.getElementById('buyFactoryBtn');
+        const factoryCostSpan = document.getElementById('factoryCost');
+        const buyTechBtn = document.getElementById('buyTechBtn');
+        const techCostSpan = document.getElementById('techCost');
+        const workBtn = document.getElementById('workBtn');
+        const depositBtn = document.getElementById('depositBtn');
+        const withdrawBtn = document.getElementById('withdrawBtn');
 
-        function calculateData(N0, lambda) {
-            let labels = [];
-            let data = [];
-            // Simulamos 50 unidades de tiempo
-            for (let t = 0; t <= 50; t += 2) {
-                labels.push(t + ' s');
-                // Fórmula matemática exponencial: N(t) = N0 * e^(-lambda * t)
-                let atoms = N0 * Math.exp(-lambda * t);
-                data.push(Math.round(atoms));
-            }
-            return { labels, data };
-        }
-
-        function initChart() {
-            let N0 = parseFloat(n0Range.value);
-            let lambda = parseFloat(lambdaRange.value);
-            let result = calculateData(N0, lambda);
-
-            decayChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: result.labels,
-                    datasets: [{
-                        label: 'Átomos Radiactivos Restantes N(t)',
-                        data: result.data,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#f8fafc' } }
-                    },
-                    scales: {
-                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
-                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
-                    }
+        // Configuración de Gráfica con Chart.js
+        const ctx = document.getElementById('financeChart').getContext('2d');
+        const financeChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Evolución del Capital (Ᶎ)',
+                    data: [],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#f3f4f6' } } },
+                scales: {
+                    x: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                    y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } }
                 }
-            });
+            }
+        });
+
+        let timeSeconds = 0;
+
+        // Actualizar cálculos de ingresos
+        function updateIncome() {
+            state.incomePerSecond = state.factories * 1.5 * state.techLevel;
+            incomeDisplay.textContent = state.incomePerSecond.toFixed(1) + " Ᶎ/s";
         }
 
-        function updateChart() {
-            let N0 = parseFloat(n0Range.value);
-            let lambda = parseFloat(lambdaRange.value);
+        // Acciones del usuario
+        workBtn.addEventListener('click', () => {
+            state.capital += 10 * state.techLevel;
+            updateUI();
+        });
 
-            n0Val.textContent = N0;
-            lambdaVal.textContent = lambda.toFixed(2);
+        buyFactoryBtn.addEventListener('click', () => {
+            if (state.capital >= state.factoryCost) {
+                state.capital -= state.factoryCost;
+                state.factories += 1;
+                state.factoryCost = Math.round(state.factoryCost * 1.25); // Progresión geométrica matemática
+                factoryCostSpan.textContent = state.factoryCost;
+                updateIncome();
+                updateUI();
+            } else {
+                alert("No tienes suficientes oincalias.");
+            }
+        });
 
-            let result = calculateData(N0, lambda);
-            decayChart.data.labels = result.labels;
-            decayChart.data.datasets[0].data = result.data;
-            decayChart.update();
+        buyTechBtn.addEventListener('click', () => {
+            if (state.capital >= state.techCost) {
+                state.capital -= state.techCost;
+                state.techLevel += 1;
+                state.techCost = Math.round(state.techCost * 1.8);
+                techCostSpan.textContent = state.techCost;
+                updateIncome();
+                updateUI();
+            } else {
+                alert("Fondos insuficientes para investigación tecnológica.");
+            }
+        });
+
+        depositBtn.addEventListener('click', () => {
+            if (state.capital >= 500) {
+                state.capital -= 500;
+                state.bankBalance += 500;
+                updateUI();
+            } else {
+                alert("Necesitas al menos 500 Ᶎ para depositar.");
+            }
+        });
+
+        withdrawBtn.addEventListener('click', () => {
+            if (state.bankBalance > 0) {
+                state.capital += state.bankBalance;
+                state.bankBalance = 0;
+                updateUI();
+            } else {
+                alert("No tienes capital en el Banco Central.");
+            }
+        });
+
+        function updateUI() {
+            capitalDisplay.textContent = state.capital.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " Ᶎ";
+            bankDisplay.textContent = state.bankBalance.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " Ᶎ";
         }
 
-        n0Range.addEventListener('input', updateChart);
-        lambdaRange.addEventListener('input', updateChart);
+        // Bucle Principal del Juego / Simulación (ejecuta cada segundo)
+        setInterval(() => {
+            // Sumar ingresos de la empresa
+            state.capital += state.incomePerSecond;
 
-        // Inicializar el gráfico al cargar
-        initChart();
+            // Simular interés del Banco Central (Interés compuesto aplicado al ahorro)
+            if (state.bankBalance > 0) {
+                state.bankBalance *= 1.002; // Pequeño incremento por segundo simulando tasa bancaria
+            }
+
+            updateUI();
+
+            // Actualizar datos de la gráfica cada segundo
+            timeSeconds += 1;
+            financeChart.data.labels.push(timeSeconds + 's');
+            financeChart.data.datasets[0].data.push(state.capital + state.bankBalance);
+
+            // Mantener la gráfica limpia mostrando solo los últimos 30 puntos
+            if (financeChart.data.labels.length > 30) {
+                financeChart.data.labels.shift();
+                financeChart.data.datasets[0].data.shift();
+            }
+            financeChart.update();
+        }, 1000);
+
+        updateUI();
     </script>
 </body>
 </html>
