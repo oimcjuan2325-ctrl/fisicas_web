@@ -3,19 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Proyectiles | Tecno & Mates</title>
+    <title>SciMath Lab | Física, Química y Matemáticas</title>
+    <!-- Importamos Chart.js para los gráficos matemáticos de las ciencias -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent: #38bdf8;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --accent: #10b981;
+            --math-color: #38bdf8;
+            --chem-color: #f43f5e;
+            --phys-color: #fbbf24;
             --text: #f8fafc;
             --text-muted: #94a3b8;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
             color: var(--text);
             margin: 0;
             padding: 20px;
@@ -27,56 +32,55 @@
 
         header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         h1 {
             margin: 0;
-            font-size: 1.8rem;
-            color: var(--accent);
+            font-size: 2rem;
+            background: linear-gradient(to right, var(--math-color), var(--chem-color), var(--phys-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         p.subtitle {
             color: var(--text-muted);
-            margin: 5px 0 0 0;
-            font-size: 0.95rem;
+            margin: 8px 0 0 0;
+            font-size: 1rem;
         }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
             gap: 20px;
-            max-width: 1000px;
+            max-width: 1100px;
             width: 100%;
-            justify-content: center;
         }
 
-        .canvas-container {
-            background: var(--card-bg);
+        @media (max-width: 850px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel, .graph-card {
+            background: var(--card);
             border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            border: 1px solid #334155;
-        }
-
-        canvas {
-            display: block;
-            background: linear-gradient(to bottom, #0284c7, #7dd3fc);
-        }
-
-        .panel {
-            background: var(--card-bg);
             padding: 20px;
-            border-radius: 12px;
-            width: 280px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
             border: 1px solid #334155;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            color: var(--accent);
+            font-size: 1.2rem;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 8px;
         }
 
         .control-group {
+            margin-bottom: 15px;
             display: flex;
             flex-direction: column;
             gap: 5px;
@@ -88,8 +92,8 @@
             font-weight: 600;
         }
 
-        .value-display {
-            color: var(--accent);
+        .val {
+            color: var(--text);
             font-weight: bold;
         }
 
@@ -98,216 +102,166 @@
             accent-color: var(--accent);
         }
 
-        .btn {
-            background-color: var(--accent);
-            color: #0f172a;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
+        .badges {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
             font-weight: bold;
-            cursor: pointer;
-            transition: opacity 0.2s;
         }
 
-        .btn:hover {
-            opacity: 0.9;
+        .badge-math { background: rgba(56, 189, 248, 0.2); color: var(--math-color); }
+        .badge-chem { background: rgba(244, 63, 94, 0.2); color: var(--chem-color); }
+        .badge-phys { background: rgba(251, 191, 36, 0.2); color: var(--phys-color); }
+
+        .graph-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            height: 420px;
         }
 
-        .stats {
-            margin-top: auto;
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .info-box {
+            margin-top: 15px;
             background: #0f172a;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
             font-size: 0.85rem;
             border: 1px solid #334155;
-        }
-
-        .stats p {
-            margin: 4px 0;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Simulador Parabólico Interactivo</h1>
-        <p class="subtitle">Física de Proyectiles aplicada con Funciones Cuadráticas y Trigonometría</p>
+        <h1>SciMath Lab Interactivo</h1>
+        <p class="subtitle">Simulador de Decaimiento Radiactivo y Cinética de Elementos</p>
     </header>
 
-    <div class="container">
-        <!-- Lienzo de Simulación -->
-        <div class="canvas-container">
-            <canvas id="simCanvas" width="640" height="400"></canvas>
+    <div class="main-grid">
+        <!-- Panel de Control y Teoría -->
+        <div class="panel">
+            <h3>Parámetros del Sistema</h3>
+            
+            <div class="badges">
+                <span class="badge badge-math">Matemáticas (Expponenciales)</span>
+                <span class="badge badge-chem">Química (Isótopos)</span>
+                <span class="badge badge-phys">Física (Semivida)</span>
+            </div>
+
+            <div class="control-group">
+                <label>Átomos Iniciales ($N_0$): <span id="n0Val" class="val">1000</span></label>
+                <input type="range" id="n0Range" min="200" max="5000" step="100" value="1000">
+            </div>
+
+            <div class="control-group">
+                <label>Constante de Desintegración ($\lambda$): <span id="lambdaVal" class="val">0.05</span></label>
+                <input type="range" id="lambdaRange" min="0.01" max="0.2" step="0.01" value="0.05">
+            </div>
+
+            <div class="info-box">
+                <strong>¿Qué une este experimento?</strong>
+                <ul style="margin: 5px 0 0 -15px; padding-left: 15px;">
+                    <li><strong>Mates:</strong> Modela una función exponencial decreciente ($N(t) = N_0 \cdot e^{-\lambda t}$).</li>
+                    <li><strong>Química:</strong> Representa cómo un isótopo radiactivo se transforma en otro elemento con el tiempo.</li>
+                    <li><strong>Física:</strong> Calcula la vida media o semivida de las partículas subatómicas.</li>
+                </ul>
+            </div>
         </div>
 
-        <!-- Panel de Control -->
-        <div class="panel">
-            <div class="control-group">
-                <label>Velocidad Inicial ($v_0$): <span id="velVal" class="value-display">30</span> m/s</label>
-                <input type="range" id="velRange" min="10" max="50" value="30">
-            </div>
-
-            <div class="control-group">
-                <label>Ángulo ($\theta$): <span id="angleVal" class="value-display">45</span>°</label>
-                <input type="range" id="angleRange" min="10" max="85" value="45">
-            </div>
-
-            <button class="btn" id="launchBtn">Lanzar Proyectil</button>
-
-            <div class="stats">
-                <p><strong>Datos Matemáticos:</strong></p>
-                <p>Altura Máx ($Y_{max}$): <span id="maxHeight">0.00</span> m</p>
-                <p>Alcance Total ($X_{max}$): <span id="maxDistance">0.00</span> m</p>
-            </div>
+        <!-- Visualización Gráfica -->
+        <div class="graph-card">
+            <canvas id="decayChart"></canvas>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('simCanvas');
-        const ctx = canvas.getContext('2d');
+        const n0Range = document.getElementById('n0Range');
+        const lambdaRange = document.getElementById('lambdaRange');
+        const n0Val = document.getElementById('n0Val');
+        const lambdaVal = document.getElementById('lambdaVal');
 
-        // Controles UI
-        const velRange = document.getElementById('velRange');
-        const angleRange = document.getElementById('angleRange');
-        const velVal = document.getElementById('velVal');
-        const angleVal = document.getElementById('angleVal');
-        const launchBtn = document.getElementById('launchBtn');
-        const maxHeightDisplay = document.getElementById('maxHeight');
-        const maxDistanceDisplay = document.getElementById('maxDistance');
+        let ctx = document.getElementById('decayChart').getContext('2d');
+        let decayChart;
 
-        // Variables de simulación
-        const g = 9.81; // Gravedad m/s^2
-        const scale = 2.5; // Escala de píxeles por metro para el canvas
-        const originX = 40; // Posición X inicial en canvas
-        const originY = 360; // Posición Y inicial en canvas
-
-        let projectile = {
-            x: 0,
-            y: 0,
-            v0: 30,
-            angle: 45,
-            time: 0,
-            active: false,
-            trajectory: []
-        };
-
-        // Actualizar etiquetas de los sliders en tiempo real
-        velRange.addEventListener('input', () => { velVal.textContent = velRange.value; });
-        angleRange.addEventListener('input', () => { angleVal.textContent = angleRange.value; });
-
-        // Calcular fórmulas matemáticas teóricas para la estadística
-        function updateMathMetrics(v0, angleDeg) {
-            const rad = angleDeg * Math.PI / 180;
-            const hMax = (Math.pow(v0 * Math.sin(rad), 2)) / (2 * g);
-            const dMax = (Math.pow(v0, 2) * Math.sin(2 * rad)) / g;
-            
-            maxHeightDisplay.textContent = hMax.toFixed(2);
-            maxDistanceDisplay.textContent = dMax.toFixed(2);
+        function calculateData(N0, lambda) {
+            let labels = [];
+            let data = [];
+            // Simulamos 50 unidades de tiempo
+            for (let t = 0; t <= 50; t += 2) {
+                labels.push(t + ' s');
+                // Fórmula matemática exponencial: N(t) = N0 * e^(-lambda * t)
+                let atoms = N0 * Math.exp(-lambda * t);
+                data.push(Math.round(atoms));
+            }
+            return { labels, data };
         }
 
-        function drawGrid() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function initChart() {
+            let N0 = parseFloat(n0Range.value);
+            let lambda = parseFloat(lambdaRange.value);
+            let result = calculateData(N0, lambda);
 
-            // Su suelo
-            ctx.fillStyle = '#14532d';
-            ctx.fillRect(0, originY, canvas.width, canvas.height - originY);
-
-            // Líneas de ejes y marcas de referencia
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-            ctx.lineWidth = 1;
-
-            for (let i = 0; i < canvas.width; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i, originY);
-                ctx.stroke();
-            }
-            for (let i = 0; i < originY; i += 40) {
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(canvas.width, i);
-                ctx.stroke();
-            }
-        }
-
-        function drawScene() {
-            drawGrid();
-
-            // Dibujar trayectoria histórica
-            if (projectile.trajectory.length > 1) {
-                ctx.beginPath();
-                ctx.strokeStyle = '#facc15';
-                ctx.lineWidth = 3;
-                for (let i = 0; i < projectile.trajectory.length; i++) {
-                    const p = projectile.trajectory[i];
-                    const canvasX = originX + (p.x * scale);
-                    const canvasY = originY - (p.y * scale);
-                    if (i === 0) ctx.moveTo(canvasX, canvasY);
-                    else ctx.lineTo(canvasX, canvasY);
+            decayChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: result.labels,
+                    datasets: [{
+                        label: 'Átomos Radiactivos Restantes N(t)',
+                        data: result.data,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+                    }
                 }
-                ctx.stroke();
-            }
-
-            // Dibujar el proyectil actual
-            const currentCanvasX = originX + (projectile.x * scale);
-            const currentCanvasY = originY - (projectile.y * scale);
-
-            ctx.beginPath();
-            ctx.arc(currentCanvasX, currentCanvasY, 7, 0, Math.PI * 2);
-            ctx.fillStyle = '#ef4444';
-            ctx.fill();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            });
         }
 
-        function animate() {
-            if (!projectile.active) return;
+        function updateChart() {
+            let N0 = parseFloat(n0Range.value);
+            let lambda = parseFloat(lambdaRange.value);
 
-            // Incremento de tiempo por frame (ralentizado un poco para mejor visualización)
-            projectile.time += 0.04; 
+            n0Val.textContent = N0;
+            lambdaVal.textContent = lambda.toFixed(2);
 
-            const rad = projectile.angle * Math.PI / 180;
-            const v0 = projectile.v0;
-
-            // Ecuaciones de Cinemática (Movimiento Parabólico)
-            // X(t) = v0 * cos(theta) * t
-            // Y(t) = v0 * sin(theta) * t - 0.5 * g * t^2
-            projectile.x = (v0 * Math.cos(rad)) * projectile.time;
-            projectile.y = (v0 * Math.sin(rad)) * projectile.time - 0.5 * g * Math.pow(projectile.time, 2);
-
-            // Guardar posición para la línea de trayectoria
-            projectile.trajectory.push({ x: projectile.x, y: projectile.y });
-
-            // Comprobar si el proyectil toca el suelo (Y <= 0)
-            if (projectile.y <= 0) {
-                projectile.y = 0;
-                projectile.active = false;
-            }
-
-            drawScene();
-
-            if (projectile.active) {
-                requestAnimationFrame(animate);
-            }
+            let result = calculateData(N0, lambda);
+            decayChart.data.labels = result.labels;
+            decayChart.data.datasets[0].data = result.data;
+            decayChart.update();
         }
 
-        launchBtn.addEventListener('click', () => {
-            projectile.v0 = parseFloat(velRange.value);
-            projectile.angle = parseFloat(angleRange.value);
-            projectile.time = 0;
-            projectile.x = 0;
-            projectile.y = 0;
-            projectile.trajectory = [];
-            projectile.active = true;
+        n0Range.addEventListener('input', updateChart);
+        lambdaRange.addEventListener('input', updateChart);
 
-            updateMathMetrics(projectile.v0, projectile.angle);
-            animate();
-        });
-
-        // Inicializar métricas al cargar
-        updateMathMetrics(parseFloat(velRange.value), parseFloat(angleRange.value));
-        drawScene();
+        // Inicializar el gráfico al cargar
+        initChart();
     </script>
 </body>
 </html>
