@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Proyectiles | Tecno & Mates</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin: 5px 0 0 0;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .canvas-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+        }
+
+        canvas {
+            display: block;
+            background: linear-gradient(to bottom, #0284c7, #7dd3fc);
+        }
+
+        .panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            width: 280px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .value-display {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: #0f172a;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .stats {
+            margin-top: auto;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border: 1px solid #334155;
+        }
+
+        .stats p {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Simulador Parabólico Interactivo</h1>
+        <p class="subtitle">Física de Proyectiles aplicada con Funciones Cuadráticas y Trigonometría</p>
+    </header>
+
+    <div class="container">
+        <!-- Lienzo de Simulación -->
+        <div class="canvas-container">
+            <canvas id="simCanvas" width="640" height="400"></canvas>
+        </div>
+
+        <!-- Panel de Control -->
+        <div class="panel">
+            <div class="control-group">
+                <label>Velocidad Inicial ($v_0$): <span id="velVal" class="value-display">30</span> m/s</label>
+                <input type="range" id="velRange" min="10" max="50" value="30">
+            </div>
+
+            <div class="control-group">
+                <label>Ángulo ($\theta$): <span id="angleVal" class="value-display">45</span>°</label>
+                <input type="range" id="angleRange" min="10" max="85" value="45">
+            </div>
+
+            <button class="btn" id="launchBtn">Lanzar Proyectil</button>
+
+            <div class="stats">
+                <p><strong>Datos Matemáticos:</strong></p>
+                <p>Altura Máx ($Y_{max}$): <span id="maxHeight">0.00</span> m</p>
+                <p>Alcance Total ($X_{max}$): <span id="maxDistance">0.00</span> m</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Controles UI
+        const velRange = document.getElementById('velRange');
+        const angleRange = document.getElementById('angleRange');
+        const velVal = document.getElementById('velVal');
+        const angleVal = document.getElementById('angleVal');
+        const launchBtn = document.getElementById('launchBtn');
+        const maxHeightDisplay = document.getElementById('maxHeight');
+        const maxDistanceDisplay = document.getElementById('maxDistance');
+
+        // Variables de simulación
+        const g = 9.81; // Gravedad m/s^2
+        const scale = 2.5; // Escala de píxeles por metro para el canvas
+        const originX = 40; // Posición X inicial en canvas
+        const originY = 360; // Posición Y inicial en canvas
+
+        let projectile = {
+            x: 0,
+            y: 0,
+            v0: 30,
+            angle: 45,
+            time: 0,
+            active: false,
+            trajectory: []
+        };
+
+        // Actualizar etiquetas de los sliders en tiempo real
+        velRange.addEventListener('input', () => { velVal.textContent = velRange.value; });
+        angleRange.addEventListener('input', () => { angleVal.textContent = angleRange.value; });
+
+        // Calcular fórmulas matemáticas teóricas para la estadística
+        function updateMathMetrics(v0, angleDeg) {
+            const rad = angleDeg * Math.PI / 180;
+            const hMax = (Math.pow(v0 * Math.sin(rad), 2)) / (2 * g);
+            const dMax = (Math.pow(v0, 2) * Math.sin(2 * rad)) / g;
+            
+            maxHeightDisplay.textContent = hMax.toFixed(2);
+            maxDistanceDisplay.textContent = dMax.toFixed(2);
+        }
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Su suelo
+            ctx.fillStyle = '#14532d';
+            ctx.fillRect(0, originY, canvas.width, canvas.height - originY);
+
+            // Líneas de ejes y marcas de referencia
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, originY);
+                ctx.stroke();
+            }
+            for (let i = 0; i < originY; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+        }
+
+        function drawScene() {
+            drawGrid();
+
+            // Dibujar trayectoria histórica
+            if (projectile.trajectory.length > 1) {
+                ctx.beginPath();
+                ctx.strokeStyle = '#facc15';
+                ctx.lineWidth = 3;
+                for (let i = 0; i < projectile.trajectory.length; i++) {
+                    const p = projectile.trajectory[i];
+                    const canvasX = originX + (p.x * scale);
+                    const canvasY = originY - (p.y * scale);
+                    if (i === 0) ctx.moveTo(canvasX, canvasY);
+                    else ctx.lineTo(canvasX, canvasY);
+                }
+                ctx.stroke();
+            }
+
+            // Dibujar el proyectil actual
+            const currentCanvasX = originX + (projectile.x * scale);
+            const currentCanvasY = originY - (projectile.y * scale);
+
+            ctx.beginPath();
+            ctx.arc(currentCanvasX, currentCanvasY, 7, 0, Math.PI * 2);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function animate() {
+            if (!projectile.active) return;
+
+            // Incremento de tiempo por frame (ralentizado un poco para mejor visualización)
+            projectile.time += 0.04; 
+
+            const rad = projectile.angle * Math.PI / 180;
+            const v0 = projectile.v0;
+
+            // Ecuaciones de Cinemática (Movimiento Parabólico)
+            // X(t) = v0 * cos(theta) * t
+            // Y(t) = v0 * sin(theta) * t - 0.5 * g * t^2
+            projectile.x = (v0 * Math.cos(rad)) * projectile.time;
+            projectile.y = (v0 * Math.sin(rad)) * projectile.time - 0.5 * g * Math.pow(projectile.time, 2);
+
+            // Guardar posición para la línea de trayectoria
+            projectile.trajectory.push({ x: projectile.x, y: projectile.y });
+
+            // Comprobar si el proyectil toca el suelo (Y <= 0)
+            if (projectile.y <= 0) {
+                projectile.y = 0;
+                projectile.active = false;
+            }
+
+            drawScene();
+
+            if (projectile.active) {
+                requestAnimationFrame(animate);
+            }
+        }
+
+        launchBtn.addEventListener('click', () => {
+            projectile.v0 = parseFloat(velRange.value);
+            projectile.angle = parseFloat(angleRange.value);
+            projectile.time = 0;
+            projectile.x = 0;
+            projectile.y = 0;
+            projectile.trajectory = [];
+            projectile.active = true;
+
+            updateMathMetrics(projectile.v0, projectile.angle);
+            animate();
+        });
+
+        // Inicializar métricas al cargar
+        updateMathMetrics(parseFloat(velRange.value), parseFloat(angleRange.value));
+        drawScene();
+    </script>
+</body>
+</html>
