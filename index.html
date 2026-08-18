@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Finance | Banco Central de Oincalia (Ᶎ)</title>
+    <!-- Chart.js para los gráficos bursátiles -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -199,7 +200,7 @@
             width: 100%;
         }
 
-        /* Panel de Inversión Personalizado */
+        /* Panel de Inversión Personalizado con Botones y Estado de Inversión */
         .investment-panel {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -210,17 +211,17 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
         }
 
         .investment-info h3 {
             margin: 0 0 5px 0;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
         }
 
         .investment-bal {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: var(--google-blue);
         }
@@ -229,6 +230,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .invest-action-area input {
@@ -237,7 +239,7 @@
             color: var(--text-main);
             padding: 10px;
             border-radius: 6px;
-            width: 120px;
+            width: 100px;
             font-size: 1rem;
             font-weight: bold;
         }
@@ -246,18 +248,32 @@
             background: var(--accent-green);
             color: #202124;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 16px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
         .invest-action-btn:hover { background: #81c995aa; }
+
+        .withdraw-action-btn {
+            background: var(--accent-red);
+            color: #202124;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .withdraw-action-btn:hover { background: #f28b82aa; }
     </style>
 </head>
 <body>
 
+    <!-- ================= PANTALLA DE ACCESO / REGISTRO CON CONTRASEÑA ================= -->
     <div id="login-container">
         <div class="auth-box">
             <h2 id="authTitle">Iniciar Sesión</h2>
@@ -275,7 +291,9 @@
         </div>
     </div>
 
+    <!-- ================= APLICACIÓN PRINCIPAL (GOOGLE FINANCE) ================= -->
     <div id="app-container">
+        <!-- Cabecera Estilo Google Finance -->
         <header>
             <div class="logo-area">
                 Google <span>Finance</span> <span style="font-size: 0.8rem; color: var(--text-muted);">| Oincalia Edition</span>
@@ -287,6 +305,7 @@
         </header>
 
         <div class="main-container">
+            <!-- Cabecera de la Única Acción: Banco Central de Oincalia -->
             <div class="stock-header">
                 <h1 class="stock-title">Banco Central de Oincalia</h1>
                 <div class="stock-ticker">OTCMKTS: OINCA • Moneda Oficial: Ᶎ (Oincalias)</div>
@@ -297,6 +316,7 @@
                 </div>
             </div>
 
+            <!-- Panel del Gráfico con Temporalidades (1D, 5D, 1M, 6M, 1A, 5A, MAX) -->
             <div class="chart-panel">
                 <div class="timeframe-buttons">
                     <button class="tf-btn active" onclick="changeTimeframe('1D', this)">1D</button>
@@ -313,14 +333,22 @@
                 </div>
             </div>
 
+            <!-- Panel de tu Cuenta, con entrada, botones de Invertir / Retirar y visualización de lo invertido -->
             <div class="investment-panel">
-                <div class="investment-info">
-                    <h3>Tu Capital Disponible (Ᶎ)</h3>
+                <div>
+                    <h3>Capital Disponible</h3>
                     <div class="investment-bal" id="investmentDisplay">0.00 Ᶎ</div>
                 </div>
+
                 <div class="invest-action-area">
                     <input type="number" id="investAmountInput" min="1" value="10" placeholder="Cantidad">
                     <button class="invest-action-btn" onclick="ejecutarInversion()">Invertir</button>
+                    <button class="withdraw-action-btn" onclick="retirarInversion()">Retirar Inversión</button>
+                </div>
+
+                <div>
+                    <h3>Dinero Invertido</h3>
+                    <div class="investment-bal" id="activeInvestmentDisplay" style="color: var(--accent-green);">0.00 Ᶎ</div>
                 </div>
             </div>
         </div>
@@ -328,7 +356,7 @@
 
     <script>
         // Cargar cuentas guardadas previamente en el navegador (localStorage)
-        let users = JSON.parse(localStorage.getItem('oincalia_secure_users_v2')) || {};
+        let users = JSON.parse(localStorage.getItem('oincalia_secure_users_v3')) || {};
         let currentUser = null;
         let isRegistering = false;
 
@@ -356,12 +384,13 @@
                 if (users[username]) {
                     return alert("Este usuario ya existe. Por favor, elige otro o inicia sesión.");
                 }
-                // Crear y guardar la cuenta con usuario, contraseña y 100 oincalias iniciales
+                // Crear y guardar la cuenta con usuario, contraseña, 100 oincalias de saldo y 0 invertidas
                 users[username] = {
                     password: password,
-                    investmentBalance: 100.00
+                    investmentBalance: 100.00,
+                    activeInvestment: 0.00
                 };
-                localStorage.setItem('oincalia_secure_users_v2', JSON.stringify(users));
+                localStorage.setItem('oincalia_secure_users_v3', JSON.stringify(users));
                 alert("¡Cuenta creada y guardada con éxito! Se han asignado 100 Ᶎ iniciales a tu cuenta.");
             } else {
                 if (!users[username]) {
@@ -369,6 +398,10 @@
                 }
                 if (users[username].password !== password) {
                     return alert("Contraseña incorrecta. Inténtalo de nuevo.");
+                }
+                // Asegurar compatibilidad si la cuenta es antigua
+                if (users[username].activeInvestment === undefined) {
+                    users[username].activeInvestment = 0.00;
                 }
             }
 
@@ -392,7 +425,7 @@
         // Guardar cambios en la cuenta actual de forma persistente
         function saveUserData() {
             if (!currentUser) return;
-            localStorage.setItem('oincalia_secure_users_v2', JSON.stringify(users));
+            localStorage.setItem('oincalia_secure_users_v3', JSON.stringify(users));
         }
 
         // Función para invertir la cantidad especificada
@@ -405,7 +438,8 @@
 
             let u = users[currentUser];
             if (u.investmentBalance >= cantidad) {
-                u.investmentBalance -= cantidad; // Resta el dinero invertido del capital disponible
+                u.investmentBalance -= cantidad; 
+                u.activeInvestment += cantidad; 
                 saveUserData();
                 updateUI();
                 alert(`¡Has invertido con éxito ${cantidad.toLocaleString('es-ES')} Ᶎ en el Banco Central de Oincalia!`);
@@ -414,9 +448,30 @@
             }
         }
 
+        // Función para retirar la cantidad especificada de la inversión activa
+        function retirarInversion() {
+            let cantidad = parseFloat(document.getElementById('investAmountInput').value);
+            
+            if (isNaN(cantidad) || cantidad <= 0) {
+                return alert("Por favor, introduce una cantidad válida para retirar.");
+            }
+
+            let u = users[currentUser];
+            if (u.activeInvestment >= cantidad) {
+                u.activeInvestment -= cantidad;
+                u.investmentBalance += cantidad;
+                saveUserData();
+                updateUI();
+                alert(`¡Has retirado ${cantidad.toLocaleString('es-ES')} Ᶎ de tu inversión con éxito!`);
+            } else {
+                alert("No tienes tanto dinero invertido actualmente para poder retirarlo.");
+            }
+        }
+
         function updateUI() {
             let u = users[currentUser];
             document.getElementById('investmentDisplay').textContent = u.investmentBalance.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + " Ᶎ";
+            document.getElementById('activeInvestmentDisplay').textContent = u.activeInvestment.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + " Ᶎ";
         }
 
         // Datos históricos simulados de la única empresa: Banco Central de Oincalia
