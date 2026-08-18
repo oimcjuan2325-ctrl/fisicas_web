@@ -1,30 +1,36 @@
-// 1. Inicializar el plano (JSXGraph)
-const board = JXG.JSXGraph.initBoard('jxgbox', { 
-    boundingbox: [-6, 6, 6, -6], axis: true, showCopyright: false 
-});
+// Añade esto al principio de tu script.js
+const API_KEY = "TU_API_KEY_AQUI"; 
 
-// Crear un triángulo dinámico
-const p1 = board.create('point', [-2, -2], {name: 'A', size: 4});
-const p2 = board.create('point', [2, -2], {name: 'B', size: 4});
-const p3 = board.create('point', [0, 2], {name: 'C', size: 4});
-const tri = board.create('polygon', [p1, p2, p3]);
+async function consultarIA(pregunta, datosGeometricos) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    
+    const prompt = `Actúa como un profesor de mates experto. El usuario tiene un triángulo con puntos A(${datosGeometricos.p1}), B(${datosGeometricos.p2}), C(${datosGeometricos.p3}). El usuario pregunta: "${pregunta}". Responde de forma pedagógica y breve.`;
 
-// 2. Lógica del Chat
-const input = document.getElementById('user-input');
-const chatBox = document.getElementById('chat-box');
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
 
-input.addEventListener('keypress', function (e) {
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
+}
+
+// Actualiza tu evento 'keypress'
+input.addEventListener('keypress', async function (e) {
     if (e.key === 'Enter') {
         const msg = input.value;
         chatBox.innerHTML += `<p><b>Tú:</b> ${msg}</p>`;
         
-        // Simulación de "IA" (Puedes conectar esto con una API real)
-        const area = JXG.Math.Geometry.polyArea([p1.X(), p2.X(), p3.X()], [p1.Y(), p2.Y(), p3.Y()]);
-        
-        let response = `Interesante figura. Basado en los puntos actuales, el área aproximada es ${area.toFixed(2)} unidades cuadradas. `;
-        response += "¿Quieres que te ayude a calcular la longitud de un lado?";
-        
-        chatBox.innerHTML += `<p class="ia-msg" style="color: #38bdf8;"><b>GeoSmart IA:</b> ${response}</p>`;
+        // Obtener datos del plano
+        const datos = {
+            p1: [p1.X().toFixed(1), p1.Y().toFixed(1)],
+            p2: [p2.X().toFixed(1), p2.Y().toFixed(1)],
+            p3: [p3.X().toFixed(1), p3.Y().toFixed(1)]
+        };
+
+        const respuesta = await consultarIA(msg, datos);
+        chatBox.innerHTML += `<p class="ia-msg" style="color: #38bdf8;"><b>GeoSmart IA:</b> ${respuesta}</p>`;
         input.value = '';
     }
 });
