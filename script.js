@@ -1,5 +1,5 @@
 // Añade esto al principio de tu script.js
-const API_KEY = "TU_API_KEY_AQUI"; 
+const API_KEY = "AQ.Ab8RN6LoGm-YNR68PPuTC54lAsK8ZQHVqD7wzQMHmmKMBv1NoQ"; 
 
 async function consultarIA(pregunta, datosGeometricos) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
