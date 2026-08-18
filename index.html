@@ -3,540 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Finance | Banco Central de Oincalia (Ᶎ)</title>
-    <!-- Chart.js para los gráficos bursátiles -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Matemáticas ESO - IA</title>
     <style>
         :root {
-            --bg-color: #202124;
-            --card-bg: #292a2d;
-            --text-main: #e8eaed;
-            --text-muted: #9aa0a6;
-            --accent-green: #81c995;
-            --accent-red: #f28b82;
-            --border-color: #3c4043;
-            --google-blue: #8ab4f8;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Roboto', Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
-        }
-
-        /* ================= PANTALLA DE ACCESO / REGISTRO CON CONTRASEÑA ================= */
-        #login-container {
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            width: 100%;
         }
 
-        .auth-box {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 40px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 380px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-
-        .auth-box h2 {
-            margin-top: 0;
-            color: var(--google-blue);
-        }
-
-        .auth-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0 16px 0;
-            background: #202124;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-main);
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-
-        .auth-box label {
-            display: block;
-            text-align: left;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .auth-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--google-blue);
-            color: #202124;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 1rem;
-        }
-
-        .auth-btn:hover { background: #aecbfa; }
-
-        .toggle-link {
-            color: var(--google-blue);
-            cursor: pointer;
-            font-size: 0.85rem;
-            margin-top: 20px;
-            display: inline-block;
-        }
-
-        .toggle-link:hover { text-decoration: underline; }
-
-        /* ================= APLICACIÓN PRINCIPAL (GOOGLE FINANCE) ================= */
-        #app-container {
+        .screen {
             display: none;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--card-bg);
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
-
-        .logo-area span {
-            color: var(--google-blue);
-            font-weight: bold;
-        }
-
-        .main-container {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        .stock-header {
-            margin-bottom: 20px;
-        }
-
-        .stock-title {
-            font-size: 2.2rem;
-            margin: 0 0 5px 0;
-            font-weight: 400;
-        }
-
-        .stock-ticker {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .price-row {
-            display: flex;
-            align-items: baseline;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .current-price {
-            font-size: 2.5rem;
-            font-weight: 400;
-        }
-
-        .price-change {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--accent-green);
-        }
-
-        /* Panel de Gráfica Estilo Google Finance */
-        .chart-panel {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 24px;
-            margin-top: 20px;
-        }
-
-        .timeframe-buttons {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .tf-btn {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .tf-btn:hover, .tf-btn.active {
-            background: rgba(138, 180, 248, 0.1);
-            color: var(--google-blue);
-            border-color: var(--google-blue);
-        }
-
-        .chart-container {
-            position: relative;
-            height: 320px;
             width: 100%;
-        }
-
-        /* Panel de Inversión Personalizado con Botones y Estado de Inversión */
-        .investment-panel {
+            max-width: 450px;
+            padding: 2rem;
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 25px;
-            display: flex;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Pantalla de Dashboard (Ampliada) */
+        #dashboard-screen {
+            max-width: 900px;
+            padding: 2.5rem;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
             justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
         }
 
-        .investment-info h3 {
-            margin: 0 0 5px 0;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .investment-bal {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--google-blue);
-        }
-
-        .invest-action-area {
+        #dashboard-screen.active {
             display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
         }
 
-        .invest-action-area input {
-            background: #202124;
-            border: 1px solid var(--border-color);
+        /* Pantalla de IA */
+        #ai-screen {
+            max-width: 700px;
+            display: none;
+            flex-direction: column;
+            min-height: 80vh;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+
+        #ai-screen.active {
+            display: flex;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
             color: var(--text-main);
-            padding: 10px;
-            border-radius: 6px;
-            width: 100px;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
             font-size: 1rem;
             font-weight: bold;
-        }
-
-        .invest-action-btn {
-            background: var(--accent-green);
-            color: #202124;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-weight: bold;
             cursor: pointer;
-            font-size: 0.95rem;
+            transition: background 0.2s;
         }
 
-        .invest-action-btn:hover { background: #81c995aa; }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
 
-        .withdraw-action-btn {
-            background: var(--accent-red);
-            color: #202124;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-weight: bold;
+        .switch-link {
+            margin-top: 1rem;
+            color: var(--primary);
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
-        .withdraw-action-btn:hover { background: #f28b82aa; }
+        .switch-link:hover {
+            text-decoration: underline;
+        }
+
+        /* --- DIAGRAMA CIRCULAR DE LOS 6 EJES --- */
+        .wheel-container {
+            position: relative;
+            width: 340px;
+            height: 340px;
+            margin: 2rem auto;
+            border-radius: 50%;
+            border: 2px dashed #cbd5e1;
+        }
+
+        /* Núcleo central */
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px;
+            height: 90px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+            z-index: 2;
+        }
+
+        /* Iconos distribuidos alrededor */
+        .node {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            z-index: 3;
+        }
+
+        .node:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.15);
+        }
+
+        /* Tooltip (Nombre al pasar el ratón) */
+        .node::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-main);
+            color: white;
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .node:hover::after {
+            opacity: 1;
+        }
+
+        /* Posicionamiento en círculo exacto (6 elementos) */
+        .node:nth-child(1) { top: 10px; left: 142px; }   /* Arriba */
+        .node:nth-child(2) { top: 90px; right: 25px; }   /* Arriba-Derecha */
+        .node:nth-child(3) { bottom: 90px; right: 25px; }/* Abajo-Derecha */
+        .node:nth-child(4) { bottom: 10px; left: 142px; }/* Abajo */
+        .node:nth-child(5) { bottom: 90px; left: 25px; } /* Abajo-Izquierda */
+        .node:nth-child(6) { top: 90px; left: 25px; }    /* Arriba-Izquierda */
+
+        /* Estilos del Chat con IA */
+        .chat-box {
+            flex-grow: 1;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #f1f5f9;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-area input {
+            margin-bottom: 0;
+        }
+
+        .btn-back, .btn-logout {
+            background-color: #64748b;
+            margin-top: 1rem;
+        }
+        .btn-back:hover, .btn-logout:hover {
+            background-color: #475569;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ================= PANTALLA DE ACCESO / REGISTRO CON CONTRASEÑA ================= -->
-    <div id="login-container">
-        <div class="auth-box">
-            <h2 id="authTitle">Iniciar Sesión</h2>
-            <p style="color: var(--text-muted); font-size: 0.85rem;" id="authSubtitle">Portal Google Finance - Oincalia</p>
-            
-            <label for="usernameInput">Usuario</label>
-            <input type="text" id="usernameInput" placeholder="Introduce tu usuario" autocomplete="off">
-            
-            <label for="passwordInput">Contraseña</label>
-            <input type="password" id="passwordInput" placeholder="Introduce tu contraseña">
-            
-            <button class="auth-btn" id="authBtn" onclick="handleAuth()">Entrar</button>
-            
-            <span class="toggle-link" onclick="toggleAuthMode()" id="toggleAuthText">¿No tienes cuenta? Crear una</span>
-        </div>
+    <!-- 1. PANTALLA DE INICIO DE SESIÓN -->
+    <div id="login-screen" class="screen active">
+        <h2>Iniciar Sesión</h2>
+        <input type="email" id="login-email" placeholder="Correo electrónico">
+        <input type="password" id="login-pass" placeholder="Contraseña">
+        <button onclick="login()">Entrar</button>
+        <div class="switch-link" onclick="showScreen('register-screen')">¿No tienes cuenta? Regístrate aquí</div>
     </div>
 
-    <!-- ================= APLICACIÓN PRINCIPAL (GOOGLE FINANCE) ================= -->
-    <div id="app-container">
-        <!-- Cabecera Estilo Google Finance -->
-        <header>
-            <div class="logo-area">
-                Google <span>Finance</span> <span style="font-size: 0.8rem; color: var(--text-muted);">| Oincalia Edition</span>
-            </div>
-            <div style="font-size: 0.9rem; color: var(--text-muted);">
-                Inversor: <span id="userDisplay" style="color: var(--google-blue); font-weight: bold;"></span> | 
-                <span style="cursor:pointer; color: var(--accent-red); text-decoration: underline;" onclick="logout()">Cerrar Sesión</span>
-            </div>
-        </header>
+    <!-- PANTALLA DE REGISTRO -->
+    <div id="register-screen" class="screen">
+        <h2>Crear Cuenta</h2>
+        <input type="text" placeholder="Nombre completo">
+        <input type="email" placeholder="Correo electrónico">
+        <input type="password" placeholder="Contraseña">
+        <button onclick="login()">Registrarse</button>
+        <div class="switch-link" onclick="showScreen('login-screen')">¿Ya tienes cuenta? Inicia sesión</div>
+    </div>
 
-        <div class="main-container">
-            <!-- Cabecera de la Única Acción: Banco Central de Oincalia -->
-            <div class="stock-header">
-                <h1 class="stock-title">Banco Central de Oincalia</h1>
-                <div class="stock-ticker">OTCMKTS: OINCA • Moneda Oficial: Ᶎ (Oincalias)</div>
-                
-                <div class="price-row">
-                    <div class="current-price" id="mainPrice">1,450.25 Ᶎ</div>
-                    <div class="price-change" id="mainChange">+18.50 (+1.29%) Hoy</div>
-                </div>
-            </div>
-
-            <!-- Panel del Gráfico con Temporalidades (1D, 5D, 1M, 6M, 1A, 5A, MAX) -->
-            <div class="chart-panel">
-                <div class="timeframe-buttons">
-                    <button class="tf-btn active" onclick="changeTimeframe('1D', this)">1D</button>
-                    <button class="tf-btn" onclick="changeTimeframe('5D', this)">5D</button>
-                    <button class="tf-btn" onclick="changeTimeframe('1M', this)">1M</button>
-                    <button class="tf-btn" onclick="changeTimeframe('6M', this)">6M</button>
-                    <button class="tf-btn" onclick="changeTimeframe('1A', this)">1A</button>
-                    <button class="tf-btn" onclick="changeTimeframe('5A', this)">5A</button>
-                    <button class="tf-btn" onclick="changeTimeframe('MAX', this)">MAX</button>
-                </div>
-
-                <div class="chart-container">
-                    <canvas id="googleFinanceChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Panel de tu Cuenta, con entrada, botones de Invertir / Retirar y visualización de lo invertido -->
-            <div class="investment-panel">
-                <div>
-                    <h3>Capital Disponible</h3>
-                    <div class="investment-bal" id="investmentDisplay">0.00 Ᶎ</div>
-                </div>
-
-                <div class="invest-action-area">
-                    <input type="number" id="investAmountInput" min="1" value="10" placeholder="Cantidad">
-                    <button class="invest-action-btn" onclick="ejecutarInversion()">Invertir</button>
-                    <button class="withdraw-action-btn" onclick="retirarInversion()">Retirar Inversión</button>
-                </div>
-
-                <div>
-                    <h3>Dinero Invertido</h3>
-                    <div class="investment-bal" id="activeInvestmentDisplay" style="color: var(--accent-green);">0.00 Ᶎ</div>
-                </div>
-            </div>
+    <!-- 2. PANTALLA PRINCIPAL (DASHBOARD CON LOS 6 EJES) -->
+    <div id="dashboard-screen" class="screen">
+        <h2>Selecciona un Eje Matemático (ESO)</h2>
+        
+        <div class="wheel-container">
+            <div class="wheel-center">Ejes ESO</div>
+            <!-- Símbolos distribuidos con su atributo data-name para el tooltip -->
+            <div class="node" data-name="Sentido Numérico" onclick="openAI('Sentido Numérico')">123</div>
+            <div class="node" data-name="Sentido de la Medida" onclick="openAI('Sentido de la Medida')">📏</div>
+            <div class="node" data-name="Sentido Espacial" onclick="openAI('Sentido Espacial')">📐</div>
+            <div class="node" data-name="Sentido Algebraico" onclick="openAI('Sentido Algebraico')">🔣</div>
+            <div class="node" data-name="Sentido Estocástico" onclick="openAI('Sentido Estocástico')">📊</div>
+            <div class="node" data-name="Sentido Socioafectivo" onclick="openAI('Sentido Socioafectivo')">💡</div>
         </div>
+
+        <button class="btn-logout" onclick="logout()" style="max-width: 200px;">Cerrar Sesión</button>
+    </div>
+
+    <!-- 3. PANTALLA DE LA IA -->
+    <div id="ai-screen" class="screen">
+        <h2 id="ai-title">Tutor IA</h2>
+        <div class="chat-box" id="chat-content">
+            <p><strong>Tutor IA:</strong> ¡Hola! Estoy especializado en este eje de matemáticas de la ESO. ¿En qué te puedo ayudar hoy?</p>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="user-msg" placeholder="Escribe tu duda matemática...">
+            <button onclick="sendMsg()" style="width: 100px;">Enviar</button>
+        </div>
+        <button class="btn-back" onclick="showScreen('dashboard-screen')">Volver al selector de ejes</button>
     </div>
 
     <script>
-        // Cargar cuentas guardadas previamente en el navegador (localStorage)
-        let users = JSON.parse(localStorage.getItem('oincalia_secure_users_v3')) || {};
-        let currentUser = null;
-        let isRegistering = false;
-
-        // Alternar entre modo "Iniciar Sesión" y "Crear Cuenta"
-        function toggleAuthMode() {
-            isRegistering = !isRegistering;
-            document.getElementById('authTitle').innerText = isRegistering ? "Crear Cuenta" : "Iniciar Sesión";
-            document.getElementById('authSubtitle').innerText = isRegistering ? "Regístrate para guardar tu cuenta y obtener 100 Ᶎ" : "Portal Google Finance - Oincalia";
-            document.getElementById('authBtn').innerText = isRegistering ? "Registrarse" : "Entrar";
-            document.getElementById('toggleAuthText').innerText = isRegistering ? "¿Ya tienes cuenta? Iniciar Sesión" : "¿No tienes cuenta? Crear una";
-            document.getElementById('usernameInput').value = '';
-            document.getElementById('passwordInput').value = '';
+        // Función para cambiar de pantallas de forma fluida
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
         }
 
-        // Manejar el proceso de autenticación o registro con usuario y contraseña
-        function handleAuth() {
-            const username = document.getElementById('usernameInput').value.trim();
-            const password = document.getElementById('passwordInput').value.trim();
-
-            if (!username || !password) {
-                return alert("Por favor, introduce un usuario y una contraseña.");
-            }
-
-            if (isRegistering) {
-                if (users[username]) {
-                    return alert("Este usuario ya existe. Por favor, elige otro o inicia sesión.");
-                }
-                // Crear y guardar la cuenta con usuario, contraseña, 100 oincalias de saldo y 0 invertidas
-                users[username] = {
-                    password: password,
-                    investmentBalance: 100.00,
-                    activeInvestment: 0.00
-                };
-                localStorage.setItem('oincalia_secure_users_v3', JSON.stringify(users));
-                alert("¡Cuenta creada y guardada con éxito! Se han asignado 100 Ᶎ iniciales a tu cuenta.");
-            } else {
-                if (!users[username]) {
-                    return alert("El usuario no existe. Regístrate primero usando la opción de abajo.");
-                }
-                if (users[username].password !== password) {
-                    return alert("Contraseña incorrecta. Inténtalo de nuevo.");
-                }
-                // Asegurar compatibilidad si la cuenta es antigua
-                if (users[username].activeInvestment === undefined) {
-                    users[username].activeInvestment = 0.00;
-                }
-            }
-
-            currentUser = username;
-            document.getElementById('login-container').style.display = 'none';
-            document.getElementById('app-container').style.display = 'block';
-            document.getElementById('userDisplay').innerText = currentUser;
-            
-            updateUI();
+        // Simula el acceso al dashboard tras iniciar sesión
+        function login() {
+            showScreen('dashboard-screen');
         }
 
-        // Cerrar sesión
+        // Simula el cierre de sesión y regresa al login
         function logout() {
-            currentUser = null;
-            document.getElementById('app-container').style.display = 'none';
-            document.getElementById('login-container').style.display = 'flex';
-            document.getElementById('usernameInput').value = '';
-            document.getElementById('passwordInput').value = '';
+            showScreen('login-screen');
         }
 
-        // Guardar cambios en la cuenta actual de forma persistente
-        function saveUserData() {
-            if (!currentUser) return;
-            localStorage.setItem('oincalia_secure_users_v3', JSON.stringify(users));
+        // Abre el apartado de IA personalizado según el eje seleccionado
+        function openAI(ejeName) {
+            document.getElementById('ai-title').innerText = "Tutor IA: " + ejeName;
+            document.getElementById('chat-content').innerHTML = `<p><strong>Tutor IA:</strong> Hola, soy tu especialista en <strong>${ejeName}</strong> para la ESO. ¿Qué problema o concepto quieres que repasemos?</p>`;
+            showScreen('ai-screen');
         }
 
-        // Función para invertir la cantidad especificada
-        function ejecutarInversion() {
-            let cantidad = parseFloat(document.getElementById('investAmountInput').value);
+        // Simula el envío de mensajes en el chat de IA
+        function sendMsg() {
+            const input = document.getElementById('user-msg');
+            const chat = document.getElementById('chat-content');
+            if(input.value.trim() === "") return;
+
+            chat.innerHTML += `<p style="text-align:right; margin-top:5px;"><strong>Tú:</strong> ${input.value}</p>`;
             
-            if (isNaN(cantidad) || cantidad <= 0) {
-                return alert("Por favor, introduce una cantidad válida para invertir.");
-            }
+            let userText = input.value;
+            input.value = "";
 
-            let u = users[currentUser];
-            if (u.investmentBalance >= cantidad) {
-                u.investmentBalance -= cantidad; 
-                u.activeInvestment += cantidad; 
-                saveUserData();
-                updateUI();
-                alert(`¡Has invertido con éxito ${cantidad.toLocaleString('es-ES')} Ᶎ en el Banco Central de Oincalia!`);
-            } else {
-                alert("No tienes suficiente capital disponible en tu cuenta para realizar esta inversión.");
-            }
+            setTimeout(() => {
+                chat.innerHTML += `<p style="margin-top:5px; color: var(--primary);"><strong>Tutor IA:</strong> Entendido con "${userText}". Analicemos los pasos necesarios para resolverlo de forma sencilla...</p>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 600);
         }
-
-        // Función para retirar la cantidad especificada de la inversión activa
-        function retirarInversion() {
-            let cantidad = parseFloat(document.getElementById('investAmountInput').value);
-            
-            if (isNaN(cantidad) || cantidad <= 0) {
-                return alert("Por favor, introduce una cantidad válida para retirar.");
-            }
-
-            let u = users[currentUser];
-            if (u.activeInvestment >= cantidad) {
-                u.activeInvestment -= cantidad;
-                u.investmentBalance += cantidad;
-                saveUserData();
-                updateUI();
-                alert(`¡Has retirado ${cantidad.toLocaleString('es-ES')} Ᶎ de tu inversión con éxito!`);
-            } else {
-                alert("No tienes tanto dinero invertido actualmente para poder retirarlo.");
-            }
-        }
-
-        function updateUI() {
-            let u = users[currentUser];
-            document.getElementById('investmentDisplay').textContent = u.investmentBalance.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + " Ᶎ";
-            document.getElementById('activeInvestmentDisplay').textContent = u.activeInvestment.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + " Ᶎ";
-        }
-
-        // Datos históricos simulados de la única empresa: Banco Central de Oincalia
-        const historicalData = {
-            '1D': { labels: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'], data: [1431.75, 1435.20, 1430.00, 1442.10, 1440.50, 1448.30, 1451.20, 1446.00, 1450.25] },
-            '5D': { labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'], data: [1410.00, 1422.50, 1415.80, 1438.20, 1450.25] },
-            '1M': { labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'], data: [1350.00, 1380.20, 1410.50, 1450.25] },
-            '6M': { labels: ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'], data: [1200.00, 1250.40, 1310.00, 1290.80, 1390.50, 1450.25] },
-            '1A': { labels: ['May', 'Jul', 'Sep', 'Nov', 'Ene', 'Abr'], data: [980.00, 1050.20, 1150.00, 1200.00, 1310.00, 1450.25] },
-            '5A': { labels: ['2022', '2023', '2024', '2025', '2026'], data: [450.00, 680.50, 950.20, 1200.00, 1450.25] },
-            'MAX': { labels: ['Fundación', 'Año 1', 'Año 2', 'Año 3', 'Actualidad'], data: [100.00, 300.00, 650.00, 1100.00, 1450.25] }
-        };
-
-        const ctx = document.getElementById('googleFinanceChart').getContext('2d');
-        let financeChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: historicalData['1D'].labels,
-                datasets: [{
-                    label: 'Banco Central de Oincalia (Ᶎ)',
-                    data: historicalData['1D'].data,
-                    borderColor: '#81c995',
-                    backgroundColor: 'rgba(129, 201, 149, 0.08)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.1,
-                    pointRadius: 0,
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: '#81c995'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { mode: 'index', intersect: false, backgroundColor: '#3c4043', titleColor: '#e8eaed', bodyColor: '#e8eaed', borderColor: '#5f6368', borderWidth: 1 }
-                },
-                scales: {
-                    x: { grid: { color: '#3c4043', borderDash: [2, 2] }, ticks: { color: '#9aa0a6' } },
-                    y: { grid: { color: '#3c4043', borderDash: [2, 2] }, ticks: { color: '#9aa0a6' }, position: 'right' }
-                }
-            }
-        });
-
-        function changeTimeframe(timeframe, btnElement) {
-            document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-            financeChart.data.labels = historicalData[timeframe].labels;
-            financeChart.data.datasets[0].data = historicalData[timeframe].data;
-            financeChart.update();
-        }
-
-        // Variación en tiempo real del precio de la acción del Banco Central
-        setInterval(() => {
-            if (!currentUser) return;
-            let currentData = financeChart.data.datasets[0].data;
-            let lastValue = currentData[currentData.length - 1];
-            let variation = (Math.random() * 4) - 1.95;
-            let newValue = parseFloat((lastValue + variation).toFixed(2));
-            
-            currentData[currentData.length - 1] = newValue;
-            financeChart.update('none');
-            document.getElementById('mainPrice').innerText = newValue.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + " Ᶎ";
-        }, 3000);
     </script>
 </body>
 </html>
