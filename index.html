@@ -2,26 +2,25 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>GeoSmart IA - Geometría Interactiva</title>
-    <link rel="stylesheet" type="text/css" href="https://jsxgraph.org/distrib/jsxgraph.css" />
+    <title>GeoSmart IA - Arquitecto Geométrico</title>
+    <!-- Librería oficial de GeoGebra -->
+    <script src="https://www.geogebra.org/apps/deployggb.js"></script>
+    <!-- Enlazamos nuestro archivo de estilos CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="main-container">
-        <div id="left-panel">
-            <h1>GeoSmart IA</h1>
-            <div id="jxgbox" class="jxgbox" style="width:600px; height:600px;"></div>
+
+    <div id="ggb-container"></div>
+    
+    <div id="chat-panel">
+        <h2>GeoSmart IA</h2>
+        <div id="chat-box">
+            <p>Hola. Pídeme que dibuje algo. Ej: "Dibuja una parábola f(x)=x²" o "Dibuja un círculo de radio 5".</p>
         </div>
-        <div id="right-panel">
-            <h2>Tutor Matemático</h2>
-            <div id="chat-box">
-                <p class="ia-msg">¡Hola! Mueve los puntos en el plano y pregúntame sobre la geometría de la figura.</p>
-            </div>
-            <input type="text" id="user-input" placeholder="Pregunta algo sobre el triángulo...">
-        </div>
+        <input type="text" id="userInput" placeholder="Escribe tu comando matemático...">
     </div>
 
-    <script type="text/javascript" src="https://jsxgraph.org/distrib/jsxgraphcore.js"></script>
+    <!-- Enlazamos nuestro archivo de lógica JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
