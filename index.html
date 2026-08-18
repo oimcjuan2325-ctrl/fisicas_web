@@ -1,101 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Demostración Visual: Teorema de Pitágoras</title>
-    <style>
-        :root {
-            --bg-color: #1a1a2e; /* Deep navy */
-            --canvas-bg: #16213e; /* Slightly lighter navy */
-            --line-color: #0f3460;
-            --accent-a: #e94560; /* Vibrant pink/red */
-            --accent-b: #4ecca3; /* Mint green */
-            --accent-c: #533483; /* Deep purple */
-            --text-color: #f1f1f1;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        h1 { margin-bottom: 10px; font-weight: 300; }
-        
-        #canvas-container {
-            position: relative;
-            background: var(--canvas-bg);
-            border: 2px solid var(--line-color);
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        canvas { display: block; cursor: crosshair; }
-        
-        .info {
-            margin-top: 20px;
-            text-align: center;
-            max-width: 600px;
-        }
-        
-        .math { font-family: 'Times New Roman', serif; font-style: italic; font-size: 1.5em; }
-    </style>
+    <link rel="stylesheet" type="text/css" href="https://jsxgraph.org/distrib/jsxgraph.css" />
+    <script type="text/javascript" src="https://jsxgraph.org/distrib/jsxgraphcore.js"></script>
+    <!-- Aquí añadirías el script de la API de Google -->
 </head>
 <body>
-
-    <h1><span class="math">a² + b² = c²</span></h1>
-    
-    <div id="canvas-container">
-        <canvas id="pythagorasCanvas" width="600" height="400"></canvas>
-    </div>
-
-    <div class="info">
-        <p>Arrastra el punto superior para manipular el triángulo. Observa cómo cambian las áreas de los cuadrados.</p>
-    </div>
-
-<script>
-    const canvas = document.getElementById('pythagorasCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    let point = { x: 300, y: 150 };
-    const baseA = { x: 150, y: 300 };
-    const baseB = { x: 450, y: 300 };
-
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        const a = Math.sqrt(Math.pow(point.x - baseA.x, 2) + Math.pow(point.y - baseA.y, 2));
-        const b = Math.sqrt(Math.pow(point.x - baseB.x, 2) + Math.pow(point.y - baseB.y, 2));
-        
-        // Draw Squares
-        // Square A
-        ctx.fillStyle = 'rgba(233, 69, 96, 0.3)';
-        ctx.fillRect(baseA.x - 100, baseA.y, 100, 100); // Simplificado
-        
-        // Triangle
-        ctx.beginPath();
-        ctx.moveTo(baseA.x, baseA.y);
-        ctx.lineTo(baseB.x, baseB.y);
-        ctx.lineTo(point.x, point.y);
-        ctx.closePath();
-        ctx.strokeStyle = '#f1f1f1';
-        ctx.stroke();
-    }
-
-    canvas.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        point.x = e.clientX - rect.left;
-        point.y = e.clientY - rect.top;
-        draw();
-    });
-
-    draw();
-</script>
+    <div id="box" class="jxgbox" style="width:500px; height:500px;"></div>
+    <div id="chat"></div>
 </body>
 </html>
