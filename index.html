@@ -2,329 +2,100 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matemáticas ESO - IA</title>
+    <title>Demostración Visual: Teorema de Pitágoras</title>
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --bg-color: #1a1a2e; /* Deep navy */
+            --canvas-bg: #16213e; /* Slightly lighter navy */
+            --line-color: #0f3460;
+            --accent-a: #e94560; /* Vibrant pink/red */
+            --accent-b: #4ecca3; /* Mint green */
+            --accent-c: #533483; /* Deep purple */
+            --text-color: #f1f1f1;
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
+            align-items: center;
             justify-content: center;
-            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
 
-        .screen {
-            display: none;
-            width: 100%;
-            max-width: 450px;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        /* Pantalla de Dashboard (Ampliada) */
-        #dashboard-screen {
-            max-width: 900px;
-            padding: 2.5rem;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            min-height: 90vh;
-            justify-content: space-between;
-        }
-
-        #dashboard-screen.active {
-            display: flex;
-        }
-
-        /* Pantalla de IA */
-        #ai-screen {
-            max-width: 700px;
-            display: none;
-            flex-direction: column;
-            min-height: 80vh;
-            justify-content: space-between;
-            padding: 2rem;
-        }
-
-        #ai-screen.active {
-            display: flex;
-        }
-
-        h2 {
-            margin-bottom: 1.5rem;
-            color: var(--text-main);
-        }
-
-        input {
-            width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border: 1px solid #cbd5e1;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-        }
-
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .switch-link {
-            margin-top: 1rem;
-            color: var(--primary);
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .switch-link:hover {
-            text-decoration: underline;
-        }
-
-        /* --- DIAGRAMA CIRCULAR DE LOS 6 EJES --- */
-        .wheel-container {
+        h1 { margin-bottom: 10px; font-weight: 300; }
+        
+        #canvas-container {
             position: relative;
-            width: 340px;
-            height: 340px;
-            margin: 2rem auto;
-            border-radius: 50%;
-            border: 2px dashed #cbd5e1;
+            background: var(--canvas-bg);
+            border: 2px solid var(--line-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Núcleo central */
-        .wheel-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90px;
-            height: 90px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.85rem;
+        canvas { display: block; cursor: crosshair; }
+        
+        .info {
+            margin-top: 20px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
-            z-index: 2;
+            max-width: 600px;
         }
-
-        /* Iconos distribuidos alrededor */
-        .node {
-            position: absolute;
-            width: 55px;
-            height: 55px;
-            background: white;
-            border: 2px solid var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            z-index: 3;
-        }
-
-        .node:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.15);
-        }
-
-        /* Tooltip (Nombre al pasar el ratón) */
-        .node::after {
-            content: attr(data-name);
-            position: absolute;
-            bottom: -32px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--text-main);
-            color: white;
-            padding: 3px 8px;
-            font-size: 0.75rem;
-            border-radius: 4px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-        }
-
-        .node:hover::after {
-            opacity: 1;
-        }
-
-        /* Posicionamiento en círculo exacto (6 elementos) */
-        .node:nth-child(1) { top: 10px; left: 142px; }   /* Arriba */
-        .node:nth-child(2) { top: 90px; right: 25px; }   /* Arriba-Derecha */
-        .node:nth-child(3) { bottom: 90px; right: 25px; }/* Abajo-Derecha */
-        .node:nth-child(4) { bottom: 10px; left: 142px; }/* Abajo */
-        .node:nth-child(5) { bottom: 90px; left: 25px; } /* Abajo-Izquierda */
-        .node:nth-child(6) { top: 90px; left: 25px; }    /* Arriba-Izquierda */
-
-        /* Estilos del Chat con IA */
-        .chat-box {
-            flex-grow: 1;
-            border: 1px solid #cbd5e1;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            background: #f1f5f9;
-            text-align: left;
-            overflow-y: auto;
-            max-height: 300px;
-        }
-
-        .chat-input-area {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .chat-input-area input {
-            margin-bottom: 0;
-        }
-
-        .btn-back, .btn-logout {
-            background-color: #64748b;
-            margin-top: 1rem;
-        }
-        .btn-back:hover, .btn-logout:hover {
-            background-color: #475569;
-        }
+        
+        .math { font-family: 'Times New Roman', serif; font-style: italic; font-size: 1.5em; }
     </style>
 </head>
 <body>
 
-    <!-- 1. PANTALLA DE INICIO DE SESIÓN -->
-    <div id="login-screen" class="screen active">
-        <h2>Iniciar Sesión</h2>
-        <input type="email" id="login-email" placeholder="Correo electrónico">
-        <input type="password" id="login-pass" placeholder="Contraseña">
-        <button onclick="login()">Entrar</button>
-        <div class="switch-link" onclick="showScreen('register-screen')">¿No tienes cuenta? Regístrate aquí</div>
+    <h1><span class="math">a² + b² = c²</span></h1>
+    
+    <div id="canvas-container">
+        <canvas id="pythagorasCanvas" width="600" height="400"></canvas>
     </div>
 
-    <!-- PANTALLA DE REGISTRO -->
-    <div id="register-screen" class="screen">
-        <h2>Crear Cuenta</h2>
-        <input type="text" placeholder="Nombre completo">
-        <input type="email" placeholder="Correo electrónico">
-        <input type="password" placeholder="Contraseña">
-        <button onclick="login()">Registrarse</button>
-        <div class="switch-link" onclick="showScreen('login-screen')">¿Ya tienes cuenta? Inicia sesión</div>
+    <div class="info">
+        <p>Arrastra el punto superior para manipular el triángulo. Observa cómo cambian las áreas de los cuadrados.</p>
     </div>
 
-    <!-- 2. PANTALLA PRINCIPAL (DASHBOARD CON LOS 6 EJES) -->
-    <div id="dashboard-screen" class="screen">
-        <h2>Selecciona un Eje Matemático (ESO)</h2>
+<script>
+    const canvas = document.getElementById('pythagorasCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let point = { x: 300, y: 150 };
+    const baseA = { x: 150, y: 300 };
+    const baseB = { x: 450, y: 300 };
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        <div class="wheel-container">
-            <div class="wheel-center">Ejes ESO</div>
-            <!-- Símbolos distribuidos con su atributo data-name para el tooltip -->
-            <div class="node" data-name="Sentido Numérico" onclick="openAI('Sentido Numérico')">123</div>
-            <div class="node" data-name="Sentido de la Medida" onclick="openAI('Sentido de la Medida')">📏</div>
-            <div class="node" data-name="Sentido Espacial" onclick="openAI('Sentido Espacial')">📐</div>
-            <div class="node" data-name="Sentido Algebraico" onclick="openAI('Sentido Algebraico')">🔣</div>
-            <div class="node" data-name="Sentido Estocástico" onclick="openAI('Sentido Estocástico')">📊</div>
-            <div class="node" data-name="Sentido Socioafectivo" onclick="openAI('Sentido Socioafectivo')">💡</div>
-        </div>
+        const a = Math.sqrt(Math.pow(point.x - baseA.x, 2) + Math.pow(point.y - baseA.y, 2));
+        const b = Math.sqrt(Math.pow(point.x - baseB.x, 2) + Math.pow(point.y - baseB.y, 2));
+        
+        // Draw Squares
+        // Square A
+        ctx.fillStyle = 'rgba(233, 69, 96, 0.3)';
+        ctx.fillRect(baseA.x - 100, baseA.y, 100, 100); // Simplificado
+        
+        // Triangle
+        ctx.beginPath();
+        ctx.moveTo(baseA.x, baseA.y);
+        ctx.lineTo(baseB.x, baseB.y);
+        ctx.lineTo(point.x, point.y);
+        ctx.closePath();
+        ctx.strokeStyle = '#f1f1f1';
+        ctx.stroke();
+    }
 
-        <button class="btn-logout" onclick="logout()" style="max-width: 200px;">Cerrar Sesión</button>
-    </div>
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        point.x = e.clientX - rect.left;
+        point.y = e.clientY - rect.top;
+        draw();
+    });
 
-    <!-- 3. PANTALLA DE LA IA -->
-    <div id="ai-screen" class="screen">
-        <h2 id="ai-title">Tutor IA</h2>
-        <div class="chat-box" id="chat-content">
-            <p><strong>Tutor IA:</strong> ¡Hola! Estoy especializado en este eje de matemáticas de la ESO. ¿En qué te puedo ayudar hoy?</p>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="user-msg" placeholder="Escribe tu duda matemática...">
-            <button onclick="sendMsg()" style="width: 100px;">Enviar</button>
-        </div>
-        <button class="btn-back" onclick="showScreen('dashboard-screen')">Volver al selector de ejes</button>
-    </div>
-
-    <script>
-        // Función para cambiar de pantallas de forma fluida
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
-
-        // Simula el acceso al dashboard tras iniciar sesión
-        function login() {
-            showScreen('dashboard-screen');
-        }
-
-        // Simula el cierre de sesión y regresa al login
-        function logout() {
-            showScreen('login-screen');
-        }
-
-        // Abre el apartado de IA personalizado según el eje seleccionado
-        function openAI(ejeName) {
-            document.getElementById('ai-title').innerText = "Tutor IA: " + ejeName;
-            document.getElementById('chat-content').innerHTML = `<p><strong>Tutor IA:</strong> Hola, soy tu especialista en <strong>${ejeName}</strong> para la ESO. ¿Qué problema o concepto quieres que repasemos?</p>`;
-            showScreen('ai-screen');
-        }
-
-        // Simula el envío de mensajes en el chat de IA
-        function sendMsg() {
-            const input = document.getElementById('user-msg');
-            const chat = document.getElementById('chat-content');
-            if(input.value.trim() === "") return;
-
-            chat.innerHTML += `<p style="text-align:right; margin-top:5px;"><strong>Tú:</strong> ${input.value}</p>`;
-            
-            let userText = input.value;
-            input.value = "";
-
-            setTimeout(() => {
-                chat.innerHTML += `<p style="margin-top:5px; color: var(--primary);"><strong>Tutor IA:</strong> Entendido con "${userText}". Analicemos los pasos necesarios para resolverlo de forma sencilla...</p>`;
-                chat.scrollTop = chat.scrollHeight;
-            }, 600);
-        }
-    </script>
+    draw();
+</script>
 </body>
 </html>
